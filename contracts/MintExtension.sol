@@ -68,4 +68,15 @@ contract MintExtension is ISlashCustomPlugin, Ownable {
     }
     event TokenWithdrawn(address tokenContract, uint256 amount);
 
+    /**
+     * @dev Check if the contract is Slash Plugin
+     *
+     * Requirement
+     * - Implement this function in the contract
+     * - Return true
+     */
+    function supportSlashExtensionInterface() external pure override returns (bool) {
+        return true;
+    }
+
 }
