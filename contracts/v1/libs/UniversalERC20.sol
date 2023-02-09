@@ -1,10 +1,10 @@
 pragma solidity ^0.8.0;
 
-import "../../node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 library UniversalERC20 {
-    using SafeMath for uint256;
+    using Address for address payable;
     using SafeERC20 for IERC20;
 
     IERC20 private constant ZERO_ADDRESS =
@@ -22,7 +22,7 @@ library UniversalERC20 {
         }
 
         if (isETH(token)) {
-            payable(address(uint160(to))).transfer(amount);
+            payable(address(uint160(to))).sendValue(amount);
             return true;
         } else {
             token.safeTransfer(to, amount);
@@ -46,10 +46,10 @@ library UniversalERC20 {
                 "Wrong useage of ETH.universalTransferFrom()"
             );
             if (to != address(this)) {
-                payable(address(uint160(to))).transfer(amount);
+                payable(address(uint160(to))).sendValue(amount);
             }
             if (msg.value > amount) {
-                payable(msg.sender).transfer(msg.value.sub(amount));
+                payable(msg.sender).sendValue(msg.value - amount);
             }
         } else {
             token.safeTransferFrom(from, to, amount);
@@ -66,7 +66,7 @@ library UniversalERC20 {
         if (isETH(token)) {
             if (msg.value > amount) {
                 // Return remainder if exist
-                payable(msg.sender).transfer(msg.value.sub(amount));
+                payable(msg.sender).sendValue(msg.value - amount);
             }
         } else {
             token.safeTransferFrom(msg.sender, address(this), amount);
