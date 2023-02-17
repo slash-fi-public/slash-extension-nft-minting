@@ -17,30 +17,29 @@ contract MintExtension is ISlashCustomPlugin, Ownable {
 
     IERC721Demo private nftDemo;
 
-    mapping(string => uint256) public purchaseInfo;
+    mapping(bytes => uint256) public purchaseInfo;
 
-    function updateNftContractAddress(address nftContractAddress)
-        external
-        onlyOwner
-    {
+    function updateNftContractAddress(
+        address nftContractAddress
+    ) external onlyOwner {
         nftDemo = IERC721Demo(nftContractAddress);
     }
 
     function receivePayment(
         address receiveToken,
         uint256 amount,
-        string calldata paymentId,
+        bytes calldata paymentId,
         string calldata optional,
         bytes calldata /** reserved */
     ) external payable override {
         require(amount > 0, "invalid amount");
-        
+
         IERC20(receiveToken).universalTransferFrom(msg.sender, owner(), amount);
         // do something
         afterReceived(paymentId, optional);
     }
 
-    function afterReceived(string memory paymentId, string memory) internal {
+    function afterReceived(bytes memory paymentId, string memory) internal {
         uint256 tokenId = nftDemo.mint(tx.origin);
         purchaseInfo[paymentId] = tokenId;
     }
